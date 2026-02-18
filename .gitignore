@@ -1,8 +1,13 @@
+# Build outputs
 /build/
+/build-*/
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 Testing/
+compile_commands.json
+
+# C/C++ binaries and objects
 *.a
 *.o
 *.obj
@@ -10,4 +15,20 @@ Testing/
 *.dylib
 *.dll
 *.exe
+*.out
+
+# Logs and temp
+*.log
+*.tmp
+
+# Env and local overrides
+.env
+.env.*
+
+# IDE/editor
+.vscode/
+.idea/
+
+# OS
 .DS_Store
+Thumbs.db

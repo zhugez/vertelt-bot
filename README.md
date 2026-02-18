@@ -1,63 +1,99 @@
 # VerTel Bot
 
-Runnable production-ready C++ Telegram bot template with layered architecture intact.
+[![CI](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg)](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/<OWNER>/<REPO>?display_name=tag)](https://github.com/<OWNER>/<REPO>/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard)
 
-## What v1 Includes
+Production-focused C++20 Telegram bot template with layered architecture, operational primitives, and CI-ready workflows.
 
-- Command router for `/start`, `/help`, `/ping`
-- Admin whitelist middleware via `ADMIN_CHAT_IDS`
-- Middleware-style per-chat token bucket rate limiter (in-memory)
-- Telegram Bot API adapter over libcurl (`getUpdates` + `sendMessage`) with robust `nlohmann/json` parsing
-- Polling loop with update offset tracking and retry/backoff
-- Built-in HTTP observability server (`/healthz`, `/metrics`)
-- Docker + docker-compose template
-- systemd unit in `deploy/vertel-bot.service`
+## Features
 
-## Architecture
+- Layered design (`app`, `core`, `adapters`, `runtime`, `platform`)
+- Telegram Bot API adapter using `libcurl`
+- Built-in `/healthz` and `/metrics` HTTP endpoints
+- Admin allowlist and per-chat in-memory rate limiting
+- Docker and `systemd` deployment templates
+- CMake + CTest build and verification pipeline
 
-- `app/`: Composition root and process entrypoint
-- `core/`: Command handlers, router, middleware, bot orchestration
-- `adapters/`: Telegram transport adapter (libcurl)
-- `runtime/`: Logging, retry, graceful shutdown
-- `third_party/`: Vendored third-party headers (`nlohmann/json.hpp`)
-- `platform/`: Environment config
-- `tests/`: Fast verification
-- `deploy/`: Deployment artifacts
+## Architecture (ASCII)
 
-## Build (Ubuntu)
+```text
++-------------------------+
+|         app/main        |
+| Composition + lifecycle |
++-----------+-------------+
+            |
+            v
++-----------+-------------+
+|           core          |
+| BotService, handlers,   |
+| command routing         |
++-----------+-------------+
+            |
+   +--------+--------+
+   v                 v
++--+-----------------+--+      +----------------------+
+|      adapters         |      |       runtime        |
+| Telegram client       |<---->| logging, retry,      |
+| (poll/send via HTTP)  |      | metrics, shutdown,   |
++-----------+-----------+      | health server         |
+            |                  +----------+-----------+
+            v                             |
++-----------+-----------+                 v
+|       platform        |        +--------+---------+
+| env/config parsing    |        | external systems |
++-----------------------+        | Telegram + infra |
+                                 +------------------+
+```
+
+See `docs/ARCHITECTURE.md` for details.
+
+## Quickstart
+
+### 1. Prerequisites
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y build-essential cmake libcurl4-openssl-dev
+```
 
-cmake -S . -B build
+### 2. Build and test
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j
 ctest --test-dir build --output-on-failure
 ```
 
-## Run
+### 3. Run (Telegram mode)
 
 ```bash
 export TELEGRAM_BOT_TOKEN="<bot-token>"
-export VERTEL_INJECT_SAMPLE_START=0
 ./build/vertel_bot
 ```
 
-Local sample mode (no Telegram network calls):
+### 4. Run (sample mode, no Telegram calls)
 
 ```bash
 VERTEL_INJECT_SAMPLE_START=1 ./build/vertel_bot
 ```
 
-## Environment Variables
+### 5. Docker
 
-Required for real Telegram mode:
+```bash
+docker compose up --build
+```
+
+## Configuration
+
+Required:
 
 - `TELEGRAM_BOT_TOKEN`: Bot token from BotFather
 
 Optional:
 
-- `VERTEL_INJECT_SAMPLE_START` (default `0`): `1` emits one synthetic `/start` update and exits
+- `VERTEL_INJECT_SAMPLE_START` (default `0`)
 - `VERTEL_TELEGRAM_LONG_POLL_TIMEOUT_SECONDS` (default `25`)
 - `VERTEL_TELEGRAM_REQUEST_TIMEOUT_SECONDS` (default `35`)
 - `VERTEL_POLL_MAX_ATTEMPTS` (default `5`)
@@ -66,40 +102,46 @@ Optional:
 - `VERTEL_RATE_LIMIT_CAPACITY` (default `5`)
 - `VERTEL_RATE_LIMIT_REFILL_TOKENS` (default `5`)
 - `VERTEL_RATE_LIMIT_REFILL_SECONDS` (default `10`)
-- `ADMIN_CHAT_IDS` (default empty): comma-separated Telegram chat IDs allowed to run commands, e.g. `1234,-100555666`
-- `VERTEL_HTTP_PORT` (default `8080`, set `<=0` to disable built-in HTTP server)
+- `ADMIN_CHAT_IDS` (default empty; comma-separated)
+- `VERTEL_HTTP_PORT` (default `8080`, set `<=0` to disable)
 
-## Health and Metrics
+## Observability
 
-- `GET /healthz` returns `200 OK` with body `ok`
-- `GET /metrics` returns plaintext counters:
+- `GET /healthz` -> `200 OK` with body `ok`
+- `GET /metrics` -> plaintext counters
   - `vertel_updates_processed_total`
   - `vertel_messages_sent_total`
   - `vertel_handler_failures_total`
   - `vertel_rate_limit_rejections_total`
 
-## Docker
+## Screenshots
 
-```bash
-docker compose up --build
-```
+Placeholders (replace with real captures):
 
-Set `TELEGRAM_BOT_TOKEN` in shell or `.env` before running compose.
+- ![Bot conversation screenshot placeholder](docs/screenshots/bot-conversation.svg)
+- ![Metrics endpoint screenshot placeholder](docs/screenshots/metrics-endpoint.svg)
+- ![Health check screenshot placeholder](docs/screenshots/health-endpoint.svg)
 
-## systemd
+## Roadmap
 
-Unit file: `deploy/vertel-bot.service`
+- Short term: stronger tests around adapters and config validation
+- Medium term: webhook transport option and persistent rate limits
+- Long term: plugin/event extension model and multi-platform chat adapters
 
-Example install:
+See `docs/ROADMAP.md` for milestones.
 
-```bash
-sudo install -D -m 0755 build/vertel_bot /opt/vertel-bot/vertel_bot
-sudo install -D -m 0644 deploy/vertel-bot.service /etc/systemd/system/vertel-bot.service
-sudo install -D -m 0640 /dev/stdin /etc/vertel-bot/vertel-bot.env <<'ENV'
-TELEGRAM_BOT_TOKEN=<bot-token>
-ENV
-sudo systemctl daemon-reload
-sudo systemctl enable --now vertel-bot
-```
+## Contributing and project policies
 
-See `OPERATIONS.md` for troubleshooting.
+- Contribution guide: `CONTRIBUTING.md`
+- Code of conduct: `CODE_OF_CONDUCT.md`
+- Security policy: `SECURITY.md`
+- Changelog: `CHANGELOG.md`
+- Operations runbook: `OPERATIONS.md`
+
+## Deployment
+
+`systemd` unit is available at `deploy/vertel-bot.service`.
+
+## License
+
+MIT License. See `LICENSE`.
