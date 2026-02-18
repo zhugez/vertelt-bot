@@ -5,16 +5,25 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/std/the-standard)
 
-Production-focused C++20 Telegram bot template with layered architecture, operational primitives, and CI-ready workflows.
+A C++20 Telegram Bot API engine aiming to be a cleaner, more extensible, more production-hardened evolution path beyond typical wrapper-style libraries. VerTel Bot is now positioned as a **library-first core** (with runnable examples), not a separate app-product direction.
 
-## Features
+## Project intent (re-aligned)
 
-- Layered design (`app`, `core`, `adapters`, `runtime`, `platform`)
-- Telegram Bot API adapter using `libcurl`
-- Built-in `/healthz` and `/metrics` HTTP endpoints
-- Admin allowlist and per-chat in-memory rate limiting
-- Docker and `systemd` deployment templates
-- CMake + CTest build and verification pipeline
+This project is intended to be your **"tgbot-cpp but better"** direction:
+- cleaner architecture boundaries,
+- easier extension points,
+- stronger production defaults,
+- better operability/testing/tooling.
+
+The runnable binary in this repo exists as a **reference harness** for validating the engine, not as a different end-product.
+
+## What VerTel improves
+
+- Clear layered architecture (`core`, `adapters`, `runtime`, `platform`) for long-term maintainability
+- Built-in operational primitives (retry, graceful shutdown, health/metrics)
+- Middleware patterns (auth allowlist, rate limiting, command routing)
+- CI/release/community scaffolding ready for serious open-source/project growth
+- C++20 baseline with testable seams and dependency-light defaults
 
 ## Architecture (ASCII)
 
@@ -48,6 +57,12 @@ Production-focused C++20 Telegram bot template with layered architecture, operat
 ```
 
 See `docs/ARCHITECTURE.md` for details.
+
+## Scope boundaries
+
+- **Current:** Telegram-first engine + reference executable + production primitives.
+- **Not the goal:** becoming a random generic bot app unrelated to Telegram core evolution.
+- **Primary goal:** iterate toward a robust Telegram bot core/library that can supersede simplistic wrappers.
 
 ## Quickstart
 
