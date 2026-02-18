@@ -1,0 +1,2 @@
+/usr/bin/ar qc libvertel_adapters.a CMakeFiles/vertel_adapters.dir/adapters/src/telegram_client.cpp.o
+/usr/bin/ranlib libvertel_adapters.a

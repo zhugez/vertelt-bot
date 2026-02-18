@@ -1,0 +1,18 @@
+services:
+  vertel-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vertel-bot:v1
+    restart: unless-stopped
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?set TELEGRAM_BOT_TOKEN in environment or .env}
+      VERTEL_INJECT_SAMPLE_START: "0"
+      VERTEL_TELEGRAM_LONG_POLL_TIMEOUT_SECONDS: "25"
+      VERTEL_TELEGRAM_REQUEST_TIMEOUT_SECONDS: "35"
+      VERTEL_POLL_MAX_ATTEMPTS: "5"
+      VERTEL_POLL_INITIAL_BACKOFF_MS: "250"
+      VERTEL_LOOP_SLEEP_MS: "50"
+      VERTEL_RATE_LIMIT_CAPACITY: "5"
+      VERTEL_RATE_LIMIT_REFILL_TOKENS: "5"
+      VERTEL_RATE_LIMIT_REFILL_SECONDS: "10"

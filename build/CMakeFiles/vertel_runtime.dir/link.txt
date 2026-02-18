@@ -1,0 +1,2 @@
+/usr/bin/ar qc libvertel_runtime.a CMakeFiles/vertel_runtime.dir/runtime/src/health_server.cpp.o CMakeFiles/vertel_runtime.dir/runtime/src/logger.cpp.o CMakeFiles/vertel_runtime.dir/runtime/src/retry_policy.cpp.o CMakeFiles/vertel_runtime.dir/runtime/src/shutdown.cpp.o
+/usr/bin/ranlib libvertel_runtime.a
