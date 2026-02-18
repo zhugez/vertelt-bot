@@ -1,0 +1,13 @@
+/build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Testing/
+*.a
+*.o
+*.obj
+*.so
+*.dylib
+*.dll
+*.exe
+.DS_Store

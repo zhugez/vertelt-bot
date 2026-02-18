@@ -1,1 +1,0 @@
-/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/core_tests.dir/link.d CMakeFiles/core_tests.dir/tests/test_bot_service.cpp.o -o core_tests  libvertel_core.a libvertel_runtime.a libvertel_adapters.a

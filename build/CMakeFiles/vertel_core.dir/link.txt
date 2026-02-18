@@ -1,2 +1,0 @@
-/usr/bin/ar qc libvertel_core.a CMakeFiles/vertel_core.dir/core/src/bot_service.cpp.o
-/usr/bin/ranlib libvertel_core.a

@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/root/.openclaw/workspace/vertel-bot/build/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
