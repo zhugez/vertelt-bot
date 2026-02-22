@@ -29,7 +29,7 @@ The runnable binary in this repo exists as a **reference harness** for validatin
 
 ```text
 +-------------------------+
-|         app/main        |
+| examples/basic_bot/main |
 | Composition + lifecycle |
 +-----------+-------------+
             |
@@ -85,13 +85,13 @@ ctest --test-dir build --output-on-failure
 
 ```bash
 export TELEGRAM_BOT_TOKEN="<bot-token>"
-./build/vertel_bot
+./build/vertel_basic_bot
 ```
 
 ### 4. Run (sample mode, no Telegram calls)
 
 ```bash
-VERTEL_INJECT_SAMPLE_START=1 ./build/vertel_bot
+VERTEL_INJECT_SAMPLE_START=1 ./build/vertel_basic_bot
 ```
 
 ### 5. Docker
@@ -152,6 +152,7 @@ See `docs/ROADMAP.md` for milestones.
 - Security policy: `SECURITY.md`
 - Changelog: `CHANGELOG.md`
 - Operations runbook: `OPERATIONS.md`
+- Consumer package docs: `docs/CONSUMING.md`
 
 ## Deployment
 
