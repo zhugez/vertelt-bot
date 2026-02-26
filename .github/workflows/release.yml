@@ -63,6 +63,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.ARTIFACT }}
+          prerelease: true
           generate_release_notes: true
 
   build-windows:
@@ -154,4 +155,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ env.ARTIFACT }}
+          prerelease: true
           generate_release_notes: true

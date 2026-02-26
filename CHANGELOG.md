@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and this project follows Semantic Versioning.
 
-## [0.1.0] - 2026-02-26
+## [Unreleased]
+
+## [0.9.0] - 2026-02-27
 
 ### Added
 
@@ -19,9 +21,9 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 - GNUmakefile wrapper for Crypto++-style UX (`make && sudo make install`)
 - Build-tree export for `find_package` without installing
 - Sanitizer builds (ASan, UBSan) and coverage via GNUmakefile
-- CI with compiler matrix (GCC + Clang), formatting, and sanitizers
-- Tagged release workflow with binary artifacts
+- CI with compiler matrix (GCC + Clang + MSVC), formatting, and sanitizers
+- Windows (MSVC) support with Winsock2 ported health server
+- Visual Studio-friendly release with `.props` property sheet (x64 + x86)
+- Consumer documentation with 5 integration methods (VS property sheet, CMake find_package, FetchContent, add_subdirectory, pkg-config)
+- Tagged release workflow with binary artifacts (Linux + Windows)
 - Open-source community health files and governance docs
-- Consumer documentation with 4 integration methods
-
-## [Unreleased]

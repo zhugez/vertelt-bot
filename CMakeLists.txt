@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(vertel VERSION 0.1.0 LANGUAGES CXX)
+project(vertel VERSION 0.9.0 LANGUAGES CXX)
 
 # Detect whether vertel is the top-level project or embedded via add_subdirectory
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
