@@ -13,7 +13,7 @@ struct MetricsSnapshot {
 };
 
 class MetricsRegistry {
- public:
+public:
   void IncrementUpdatesProcessed() { updates_processed_.fetch_add(1, std::memory_order_relaxed); }
   void IncrementMessagesSent() { messages_sent_.fetch_add(1, std::memory_order_relaxed); }
   void IncrementHandlerFailures() { handler_failures_.fetch_add(1, std::memory_order_relaxed); }
@@ -29,11 +29,11 @@ class MetricsRegistry {
                                rate_limit_rejections_.load(std::memory_order_relaxed)};
   }
 
- private:
+private:
   std::atomic<std::uint64_t> updates_processed_{0};
   std::atomic<std::uint64_t> messages_sent_{0};
   std::atomic<std::uint64_t> handler_failures_{0};
   std::atomic<std::uint64_t> rate_limit_rejections_{0};
 };
 
-}  // namespace vertel::runtime
+} // namespace vertel::runtime

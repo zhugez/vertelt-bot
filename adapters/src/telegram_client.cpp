@@ -15,17 +15,17 @@
 namespace vertel::adapters::telegram {
 namespace {
 
-constexpr const char* kTelegramApiBase = "https://api.telegram.org";
+constexpr const char *kTelegramApiBase = "https://api.telegram.org";
 
 #if VERTEL_HAS_LIBCURL
-size_t WriteBody(char* ptr, size_t size, size_t nmemb, void* userdata) {
-  auto* out = static_cast<std::string*>(userdata);
+size_t WriteBody(char *ptr, size_t size, size_t nmemb, void *userdata) {
+  auto *out = static_cast<std::string *>(userdata);
   out->append(ptr, size * nmemb);
   return size * nmemb;
 }
 #endif
 
-}  // namespace
+} // namespace
 
 TelegramClient::TelegramClient(bool inject_sample_update)
     : inject_sample_update_(inject_sample_update) {}
@@ -36,14 +36,14 @@ TelegramClient::TelegramClient(std::string bot_token, int long_poll_timeout_seco
       long_poll_timeout_seconds_(std::max(1, long_poll_timeout_seconds)),
       request_timeout_seconds_(std::max(5, request_timeout_seconds)) {}
 
-TelegramClient::HttpResponse TelegramClient::PostForm(const std::string& endpoint,
-                                                      const std::string& form_body) const {
+TelegramClient::HttpResponse TelegramClient::PostForm(const std::string &endpoint,
+                                                      const std::string &form_body) const {
 #if !VERTEL_HAS_LIBCURL
   (void)endpoint;
   (void)form_body;
   throw std::runtime_error("built without libcurl");
 #else
-  CURL* curl = curl_easy_init();
+  CURL *curl = curl_easy_init();
   if (curl == nullptr) {
     throw std::runtime_error("curl_easy_init failed");
   }
@@ -82,11 +82,11 @@ TelegramClient::HttpResponse TelegramClient::PostForm(const std::string& endpoin
 #endif
 }
 
-std::vector<vertel::core::Update> TelegramClient::ParseUpdates(const std::string& json) const {
+std::vector<vertel::core::Update> TelegramClient::ParseUpdates(const std::string &json) const {
   nlohmann::json payload;
   try {
     payload = nlohmann::json::parse(json);
-  } catch (const nlohmann::json::parse_error& ex) {
+  } catch (const nlohmann::json::parse_error &ex) {
     throw std::runtime_error(std::string("telegram response parse error: ") + ex.what());
   }
 
@@ -100,7 +100,7 @@ std::vector<vertel::core::Update> TelegramClient::ParseUpdates(const std::string
   }
 
   std::vector<vertel::core::Update> updates;
-  for (const auto& item : *result_it) {
+  for (const auto &item : *result_it) {
     try {
       if (!item.is_object()) {
         continue;
@@ -125,11 +125,10 @@ std::vector<vertel::core::Update> TelegramClient::ParseUpdates(const std::string
         continue;
       }
 
-      updates.push_back(vertel::core::Update{
-          .update_id = update_id_it->get<std::int64_t>(),
-          .chat_id = chat_id_it->get<std::int64_t>(),
-          .text = text_it->get<std::string>()});
-    } catch (const nlohmann::json::exception&) {
+      updates.push_back(vertel::core::Update{.update_id = update_id_it->get<std::int64_t>(),
+                                             .chat_id = chat_id_it->get<std::int64_t>(),
+                                             .text = text_it->get<std::string>()});
+    } catch (const nlohmann::json::exception &) {
       continue;
     }
   }
@@ -137,16 +136,16 @@ std::vector<vertel::core::Update> TelegramClient::ParseUpdates(const std::string
   return updates;
 }
 
-std::string TelegramClient::UrlEncode(const std::string& value) {
+std::string TelegramClient::UrlEncode(const std::string &value) {
 #if !VERTEL_HAS_LIBCURL
   (void)value;
   throw std::runtime_error("built without libcurl");
 #else
-  CURL* curl = curl_easy_init();
+  CURL *curl = curl_easy_init();
   if (curl == nullptr) {
     throw std::runtime_error("curl_easy_init failed for encode");
   }
-  char* escaped = curl_easy_escape(curl, value.c_str(), static_cast<int>(value.size()));
+  char *escaped = curl_easy_escape(curl, value.c_str(), static_cast<int>(value.size()));
   if (escaped == nullptr) {
     curl_easy_cleanup(curl);
     throw std::runtime_error("curl_easy_escape failed");
@@ -175,13 +174,13 @@ std::vector<vertel::core::Update> TelegramClient::PollUpdates() {
 
   const auto response = PostForm("getUpdates", fields.str());
   auto updates = ParseUpdates(response.body);
-  for (const auto& update : updates) {
+  for (const auto &update : updates) {
     next_update_offset_ = std::max(next_update_offset_, update.update_id + 1);
   }
   return updates;
 }
 
-void TelegramClient::SendMessage(const vertel::core::OutgoingMessage& message) {
+void TelegramClient::SendMessage(const vertel::core::OutgoingMessage &message) {
   sent_messages_.push_back(message);
   if (inject_sample_update_) {
     return;
@@ -195,8 +194,8 @@ void TelegramClient::SendMessage(const vertel::core::OutgoingMessage& message) {
   (void)PostForm("sendMessage", fields.str());
 }
 
-const std::vector<vertel::core::OutgoingMessage>& TelegramClient::SentMessages() const {
+const std::vector<vertel::core::OutgoingMessage> &TelegramClient::SentMessages() const {
   return sent_messages_;
 }
 
-}  // namespace vertel::adapters::telegram
+} // namespace vertel::adapters::telegram

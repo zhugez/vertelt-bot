@@ -1,12 +1,12 @@
 #pragma once
 
+#include <mutex>
 #include <string>
 #include <thread>
-#include <mutex>
 
 #ifdef _WIN32
-#  include <winsock2.h>
-#  include <ws2tcpip.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #endif
 
 #include "vertel/runtime/metrics.hpp"
@@ -14,23 +14,23 @@
 namespace vertel::runtime {
 
 class HealthServer {
- public:
-  HealthServer(MetricsRegistry& metrics, int port);
+public:
+  HealthServer(MetricsRegistry &metrics, int port);
   ~HealthServer();
 
-  HealthServer(const HealthServer&) = delete;
-  HealthServer& operator=(const HealthServer&) = delete;
+  HealthServer(const HealthServer &) = delete;
+  HealthServer &operator=(const HealthServer &) = delete;
 
   void Start();
   void Stop();
 
   int port() const { return port_; }
 
- private:
+private:
   void Run();
-  static std::string BuildMetricsBody(const MetricsSnapshot& snapshot);
+  static std::string BuildMetricsBody(const MetricsSnapshot &snapshot);
 
-  MetricsRegistry& metrics_;
+  MetricsRegistry &metrics_;
   int port_;
   bool running_{false};
 #ifdef _WIN32
@@ -42,4 +42,4 @@ class HealthServer {
   std::mutex mutex_;
 };
 
-}  // namespace vertel::runtime
+} // namespace vertel::runtime

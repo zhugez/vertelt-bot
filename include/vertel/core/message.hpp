@@ -16,4 +16,4 @@ struct OutgoingMessage {
   std::string text;
 };
 
-}  // namespace vertel::core
+} // namespace vertel::core

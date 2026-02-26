@@ -5,13 +5,13 @@
 namespace vertel::runtime {
 
 class ShutdownSignal {
- public:
+public:
   static void Install();
   static bool IsRequested();
 
- private:
+private:
   static void Handle(int signal_number);
   static std::atomic<bool> stop_requested_;
 };
 
-}  // namespace vertel::runtime
+} // namespace vertel::runtime

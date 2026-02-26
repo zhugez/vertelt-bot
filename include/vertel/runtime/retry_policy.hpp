@@ -10,7 +10,7 @@ struct RetryPolicy {
   std::chrono::milliseconds initial_backoff{100};
 
   template <typename Operation, typename IsRetryable>
-  bool Execute(Operation&& operation, IsRetryable&& is_retryable) const {
+  bool Execute(Operation &&operation, IsRetryable &&is_retryable) const {
     auto backoff = initial_backoff;
     for (int attempt = 1; attempt <= max_attempts; ++attempt) {
       if (operation()) {
@@ -26,4 +26,4 @@ struct RetryPolicy {
   }
 };
 
-}  // namespace vertel::runtime
+} // namespace vertel::runtime

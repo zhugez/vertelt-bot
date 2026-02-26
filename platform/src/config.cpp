@@ -7,8 +7,8 @@
 namespace vertel::platform {
 namespace {
 
-int ReadIntEnv(const char* key, int fallback) {
-  if (const char* value = std::getenv(key); value != nullptr) {
+int ReadIntEnv(const char *key, int fallback) {
+  if (const char *value = std::getenv(key); value != nullptr) {
     try {
       return std::stoi(value);
     } catch (...) {
@@ -18,9 +18,9 @@ int ReadIntEnv(const char* key, int fallback) {
   return fallback;
 }
 
-std::unordered_set<std::int64_t> ReadAdminChatIds(const char* key) {
+std::unordered_set<std::int64_t> ReadAdminChatIds(const char *key) {
   std::unordered_set<std::int64_t> out;
-  if (const char* value = std::getenv(key); value != nullptr) {
+  if (const char *value = std::getenv(key); value != nullptr) {
     std::stringstream ss(value);
     std::string token;
     while (std::getline(ss, token, ',')) {
@@ -40,19 +40,18 @@ std::unordered_set<std::int64_t> ReadAdminChatIds(const char* key) {
   return out;
 }
 
-}  // namespace
+} // namespace
 
 Config Config::FromEnv() {
   Config c;
-  if (const char* token = std::getenv("TELEGRAM_BOT_TOKEN"); token != nullptr) {
+  if (const char *token = std::getenv("TELEGRAM_BOT_TOKEN"); token != nullptr) {
     c.bot_token = token;
   }
-  if (const char* inject = std::getenv("VERTEL_INJECT_SAMPLE_START"); inject != nullptr) {
+  if (const char *inject = std::getenv("VERTEL_INJECT_SAMPLE_START"); inject != nullptr) {
     c.inject_sample_start = std::string(inject) != "0";
   }
   c.telegram_long_poll_timeout_seconds =
-      ReadIntEnv("VERTEL_TELEGRAM_LONG_POLL_TIMEOUT_SECONDS",
-                 c.telegram_long_poll_timeout_seconds);
+      ReadIntEnv("VERTEL_TELEGRAM_LONG_POLL_TIMEOUT_SECONDS", c.telegram_long_poll_timeout_seconds);
   c.telegram_request_timeout_seconds =
       ReadIntEnv("VERTEL_TELEGRAM_REQUEST_TIMEOUT_SECONDS", c.telegram_request_timeout_seconds);
   c.poll_max_attempts = ReadIntEnv("VERTEL_POLL_MAX_ATTEMPTS", c.poll_max_attempts);
@@ -69,4 +68,4 @@ Config Config::FromEnv() {
   return c;
 }
 
-}  // namespace vertel::platform
+} // namespace vertel::platform

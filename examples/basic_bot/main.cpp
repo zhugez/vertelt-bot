@@ -16,32 +16,29 @@ int main() {
 
   const auto config = platform::Config::FromEnv();
   runtime::Logger logger;
-  runtime::RetryPolicy retry_policy{
-      .max_attempts = config.poll_max_attempts,
-      .initial_backoff = std::chrono::milliseconds(config.poll_initial_backoff_ms)};
+  runtime::RetryPolicy retry_policy{.max_attempts = config.poll_max_attempts,
+                                    .initial_backoff =
+                                        std::chrono::milliseconds(config.poll_initial_backoff_ms)};
   runtime::ShutdownSignal::Install();
   runtime::MetricsRegistry metrics;
   runtime::HealthServer health_server(metrics, config.http_port);
   health_server.Start();
 
   adapters::telegram::TelegramClient telegram(
-      config.inject_sample_start
-          ? adapters::telegram::TelegramClient(/*inject_sample_update=*/true)
-          : adapters::telegram::TelegramClient(config.bot_token,
-                                               config.telegram_long_poll_timeout_seconds,
-                                               config.telegram_request_timeout_seconds));
+      config.inject_sample_start ? adapters::telegram::TelegramClient(/*inject_sample_update=*/true)
+                                 : adapters::telegram::TelegramClient(
+                                       config.bot_token, config.telegram_long_poll_timeout_seconds,
+                                       config.telegram_request_timeout_seconds));
 
   core::StartCommandHandler start_handler;
   core::HelpCommandHandler help_handler;
   core::PingCommandHandler ping_handler;
   core::CommandRouter router({start_handler, help_handler, ping_handler});
   core::AdminWhitelistCommandHandler admin_guard(router, config.admin_chat_ids);
-  core::TokenBucketRateLimiter limiter(
-      config.rate_limit_capacity, config.rate_limit_refill_tokens,
-      std::chrono::seconds(config.rate_limit_refill_seconds));
-  core::RateLimitedCommandHandler guarded_router(admin_guard, limiter,
-                                                 "Rate limit exceeded. Please slow down.",
-                                                 &metrics);
+  core::TokenBucketRateLimiter limiter(config.rate_limit_capacity, config.rate_limit_refill_tokens,
+                                       std::chrono::seconds(config.rate_limit_refill_seconds));
+  core::RateLimitedCommandHandler guarded_router(
+      admin_guard, limiter, "Rate limit exceeded. Please slow down.", &metrics);
   core::BotService bot(telegram, guarded_router, &metrics);
 
   logger.Log(runtime::LogLevel::kInfo, "bot_starting",
@@ -53,7 +50,7 @@ int main() {
           try {
             bot.ProcessOnce();
             return true;
-          } catch (const std::exception& ex) {
+          } catch (const std::exception &ex) {
             logger.Log(runtime::LogLevel::kWarn, "poll_iteration_failed",
                        {{"component", "app"}, {"error", ex.what()}});
             return false;
@@ -62,8 +59,7 @@ int main() {
         [] { return true; });
 
     if (!processed) {
-      logger.Log(runtime::LogLevel::kError, "poll_iteration_exhausted",
-                 {{"component", "app"}});
+      logger.Log(runtime::LogLevel::kError, "poll_iteration_exhausted", {{"component", "app"}});
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(config.loop_sleep_ms));

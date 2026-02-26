@@ -23,4 +23,4 @@ struct Config {
   static Config FromEnv();
 };
 
-}  // namespace vertel::platform
+} // namespace vertel::platform

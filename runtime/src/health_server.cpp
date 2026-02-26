@@ -1,21 +1,21 @@
 #include "vertel/runtime/health_server.hpp"
 
 #ifdef _WIN32
-#  ifndef WIN32_LEAN_AND_MEAN
-#    define WIN32_LEAN_AND_MEAN
-#  endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 // winsock2.h already included via the header
-#  pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "ws2_32.lib")
 using socket_t = SOCKET;
 constexpr socket_t kInvalidSocket = INVALID_SOCKET;
 inline int close_socket(socket_t s) { return closesocket(s); }
 inline void shutdown_socket(socket_t s) { shutdown(s, SD_BOTH); }
 #else
-#  include <arpa/inet.h>
-#  include <netinet/in.h>
-#  include <sys/select.h>
-#  include <sys/socket.h>
-#  include <unistd.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <unistd.h>
 using socket_t = int;
 constexpr socket_t kInvalidSocket = -1;
 inline int close_socket(socket_t s) { return close(s); }
@@ -38,7 +38,7 @@ struct WinsockInit {
 static WinsockInit winsock_init_;
 #endif
 
-std::string BuildHttpResponse(int status_code, const char* status_text, const std::string& body) {
+std::string BuildHttpResponse(int status_code, const char *status_text, const std::string &body) {
   std::ostringstream response;
   response << "HTTP/1.1 " << status_code << ' ' << status_text << "\r\n";
   response << "Content-Type: text/plain; charset=utf-8\r\n";
@@ -48,7 +48,7 @@ std::string BuildHttpResponse(int status_code, const char* status_text, const st
   return response.str();
 }
 
-std::string ExtractPath(const std::string& request) {
+std::string ExtractPath(const std::string &request) {
   const auto line_end = request.find("\r\n");
   const auto line = request.substr(0, line_end);
   const auto first_space = line.find(' ');
@@ -62,10 +62,9 @@ std::string ExtractPath(const std::string& request) {
   return line.substr(first_space + 1, second_space - first_space - 1);
 }
 
-}  // namespace
+} // namespace
 
-HealthServer::HealthServer(MetricsRegistry& metrics, int port)
-    : metrics_(metrics), port_(port) {}
+HealthServer::HealthServer(MetricsRegistry &metrics, int port) : metrics_(metrics), port_(port) {}
 
 HealthServer::~HealthServer() { Stop(); }
 
@@ -122,7 +121,7 @@ void HealthServer::Run() {
   addr.sin_addr.s_addr = htonl(INADDR_ANY);
   addr.sin_port = htons(static_cast<uint16_t>(port_));
 
-  if (bind(listen_fd_, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0 ||
+  if (bind(listen_fd_, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)) < 0 ||
       listen(listen_fd_, 8) < 0) {
     close_socket(listen_fd_);
     listen_fd_ = kInvalidSocket;
@@ -186,7 +185,7 @@ void HealthServer::Run() {
   listen_fd_ = kInvalidSocket;
 }
 
-std::string HealthServer::BuildMetricsBody(const MetricsSnapshot& snapshot) {
+std::string HealthServer::BuildMetricsBody(const MetricsSnapshot &snapshot) {
   std::ostringstream out;
   out << "vertel_updates_processed_total " << snapshot.updates_processed << "\n";
   out << "vertel_messages_sent_total " << snapshot.messages_sent << "\n";
@@ -195,4 +194,4 @@ std::string HealthServer::BuildMetricsBody(const MetricsSnapshot& snapshot) {
   return out.str();
 }
 
-}  // namespace vertel::runtime
+} // namespace vertel::runtime

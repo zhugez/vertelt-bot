@@ -15,4 +15,4 @@ void ShutdownSignal::Install() {
 
 bool ShutdownSignal::IsRequested() { return stop_requested_.load(); }
 
-}  // namespace vertel::runtime
+} // namespace vertel::runtime

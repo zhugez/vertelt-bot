@@ -7,16 +7,16 @@
 namespace vertel::core {
 
 class BotService {
- public:
-  BotService(TelegramGateway& gateway, CommandHandler& handler,
-             runtime::MetricsRegistry* metrics = nullptr);
+public:
+  BotService(TelegramGateway &gateway, CommandHandler &handler,
+             runtime::MetricsRegistry *metrics = nullptr);
 
   void ProcessOnce();
 
- private:
-  TelegramGateway& gateway_;
-  CommandHandler& handler_;
-  runtime::MetricsRegistry* metrics_;
+private:
+  TelegramGateway &gateway_;
+  CommandHandler &handler_;
+  runtime::MetricsRegistry *metrics_;
 };
 
-}  // namespace vertel::core
+} // namespace vertel::core

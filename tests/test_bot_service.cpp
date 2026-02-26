@@ -13,9 +13,8 @@
 namespace {
 
 class FakeGateway final : public vertel::core::TelegramGateway {
- public:
-  explicit FakeGateway(std::vector<vertel::core::Update> updates)
-      : updates_(std::move(updates)) {}
+public:
+  explicit FakeGateway(std::vector<vertel::core::Update> updates) : updates_(std::move(updates)) {}
 
   std::vector<vertel::core::Update> PollUpdates() override {
     auto out = updates_;
@@ -23,20 +22,20 @@ class FakeGateway final : public vertel::core::TelegramGateway {
     return out;
   }
 
-  void SendMessage(const vertel::core::OutgoingMessage& message) override {
+  void SendMessage(const vertel::core::OutgoingMessage &message) override {
     sent_.push_back(message);
   }
 
-  const std::vector<vertel::core::OutgoingMessage>& Sent() const { return sent_; }
+  const std::vector<vertel::core::OutgoingMessage> &Sent() const { return sent_; }
 
- private:
+private:
   std::vector<vertel::core::Update> updates_;
   std::vector<vertel::core::OutgoingMessage> sent_;
 };
 
 class ThrowingHandler final : public vertel::core::CommandHandler {
- public:
-  std::optional<vertel::core::OutgoingMessage> Handle(const vertel::core::Update& update) override {
+public:
+  std::optional<vertel::core::OutgoingMessage> Handle(const vertel::core::Update &update) override {
     if (update.text == "/boom") {
       throw std::runtime_error("simulated handler failure");
     }
@@ -51,7 +50,7 @@ void TestStartCommandWithAdapterSample() {
 
   bot.ProcessOnce();
 
-  const auto& sent = telegram.SentMessages();
+  const auto &sent = telegram.SentMessages();
   assert(sent.size() == 1);
   assert(sent[0].chat_id == 1001);
   assert(sent[0].text.find("Welcome") != std::string::npos);
@@ -72,7 +71,7 @@ void TestRouterHandlesHelpAndPing() {
 
   bot.ProcessOnce();
 
-  const auto& sent = gateway.Sent();
+  const auto &sent = gateway.Sent();
   assert(sent.size() == 2);
   assert(sent[0].chat_id == 11);
   assert(sent[0].text.find("/start") != std::string::npos);
@@ -91,14 +90,13 @@ void TestRateLimiterBlocksBurstPerChatAndIncrementsMetric() {
   vertel::core::PingCommandHandler ping_handler;
   vertel::core::TokenBucketRateLimiter limiter(
       /*capacity=*/2, /*refill_tokens=*/1, std::chrono::seconds(60));
-  vertel::core::RateLimitedCommandHandler limited(ping_handler, limiter,
-                                                  "Rate limit exceeded. Please slow down.",
-                                                  &metrics);
+  vertel::core::RateLimitedCommandHandler limited(
+      ping_handler, limiter, "Rate limit exceeded. Please slow down.", &metrics);
   vertel::core::BotService bot(gateway, limited, &metrics);
 
   bot.ProcessOnce();
 
-  const auto& sent = gateway.Sent();
+  const auto &sent = gateway.Sent();
   assert(sent.size() == 3);
   assert(sent[0].text == "pong");
   assert(sent[1].text == "pong");
@@ -117,13 +115,13 @@ void TestAdminWhitelistBlocksNonAdmin() {
   });
 
   vertel::core::PingCommandHandler ping_handler;
-  vertel::core::AdminWhitelistCommandHandler admin_guard(
-      ping_handler, std::unordered_set<std::int64_t>{100});
+  vertel::core::AdminWhitelistCommandHandler admin_guard(ping_handler,
+                                                         std::unordered_set<std::int64_t>{100});
   vertel::core::BotService bot(gateway, admin_guard);
 
   bot.ProcessOnce();
 
-  const auto& sent = gateway.Sent();
+  const auto &sent = gateway.Sent();
   assert(sent.size() == 2);
   assert(sent[0].chat_id == 200);
   assert(sent[0].text == "Unauthorized.");
@@ -143,7 +141,7 @@ void TestHandlerFailuresAreCountedAndProcessingContinues() {
 
   bot.ProcessOnce();
 
-  const auto& sent = gateway.Sent();
+  const auto &sent = gateway.Sent();
   assert(sent.size() == 1);
   assert(sent[0].text == "ok");
 
@@ -153,7 +151,7 @@ void TestHandlerFailuresAreCountedAndProcessingContinues() {
   assert(snapshot.messages_sent == 1);
 }
 
-}  // namespace
+} // namespace
 
 int main() {
   TestStartCommandWithAdapterSample();
