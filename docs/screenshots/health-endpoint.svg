@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="Health endpoint placeholder">
-  <rect width="960" height="540" fill="#f0fdf4"/>
-  <rect x="60" y="60" width="840" height="420" rx="18" fill="#ffffff" stroke="#86efac"/>
-  <text x="480" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" fill="#052e16">Screenshot Placeholder</text>
-  <text x="480" y="292" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" fill="#14532d">Health Check Endpoint</text>
-</svg>
