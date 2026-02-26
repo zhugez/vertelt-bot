@@ -104,9 +104,17 @@ jobs:
         run: |
           $sdk = "sdk"
 
-          # Libraries
+          # Libraries (VerTel + vcpkg-built curl)
           New-Item -ItemType Directory -Force -Path "$sdk/lib/${{ matrix.arch }}"
           Copy-Item build/Release/*.lib -Destination "$sdk/lib/${{ matrix.arch }}/"
+          # Copy vcpkg-built static curl lib so consumers don't need vcpkg
+          $vcpkgLibDir = "$env:VCPKG_INSTALLATION_ROOT/installed/${{ matrix.triplet }}/lib"
+          if (Test-Path "$vcpkgLibDir/libcurl.lib") {
+            Copy-Item "$vcpkgLibDir/libcurl.lib" -Destination "$sdk/lib/${{ matrix.arch }}/"
+          }
+          if (Test-Path "$vcpkgLibDir/zlib.lib") {
+            Copy-Item "$vcpkgLibDir/zlib.lib" -Destination "$sdk/lib/${{ matrix.arch }}/"
+          }
 
           # Headers (public API)
           Copy-Item -Recurse include/vertel "$sdk/include/vertel"
@@ -133,7 +141,7 @@ jobs:
               </ClCompile>
               <Link>
                 <AdditionalLibraryDirectories>`$(VERTEL_ROOT)lib/${{ matrix.arch }};%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-                <AdditionalDependencies>vertel_core.lib;vertel_runtime.lib;vertel_adapters.lib;vertel_platform.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+                <AdditionalDependencies>vertel_core.lib;vertel_runtime.lib;vertel_adapters.lib;vertel_platform.lib;libcurl.lib;zlib.lib;ws2_32.lib;Crypt32.lib;Wldap32.lib;Normaliz.lib;%(AdditionalDependencies)</AdditionalDependencies>
               </Link>
             </ItemDefinitionGroup>
           </Project>
