@@ -12,6 +12,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Prevent windows.h min/max macros from breaking std::min/std::max
+if(MSVC)
+  add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN)
+endif()
+
 option(VERTEL_INSTALL       "Generate install targets"  ${VERTEL_IS_TOP_LEVEL})
 option(VERTEL_BUILD_TESTS   "Build tests"               ${VERTEL_IS_TOP_LEVEL})
 option(VERTEL_BUILD_EXAMPLES "Build runnable examples"  ${VERTEL_IS_TOP_LEVEL})

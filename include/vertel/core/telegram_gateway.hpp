@@ -1,5 +1,10 @@
 #pragma once
 
+// MSVC: windows.h #defines SendMessage as SendMessageA/W — undo it.
+#ifdef SendMessage
+#undef SendMessage
+#endif
+
 #include <vector>
 
 #include "vertel/core/message.hpp"

@@ -78,7 +78,7 @@ jobs:
             msvc_arch: x64
           - arch: x86
             triplet: x86-windows-static
-            msvc_arch: x86
+            msvc_arch: Win32
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
     steps:
@@ -90,7 +90,6 @@ jobs:
       - name: Configure
         run: >
           cmake -S . -B build -A ${{ matrix.msvc_arch }}
-          -DCMAKE_BUILD_TYPE=Release
           -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
           -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
 
