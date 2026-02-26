@@ -74,10 +74,10 @@ jobs:
       matrix:
         include:
           - arch: x64
-            triplet: x64-windows-static
+            triplet: x64-windows-static-md
             msvc_arch: x64
           - arch: x86
-            triplet: x86-windows-static
+            triplet: x86-windows-static-md
             msvc_arch: Win32
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
@@ -141,7 +141,7 @@ jobs:
               </ClCompile>
               <Link>
                 <AdditionalLibraryDirectories>`$(VERTEL_ROOT)lib/${{ matrix.arch }};%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-                <AdditionalDependencies>vertel_core.lib;vertel_runtime.lib;vertel_adapters.lib;vertel_platform.lib;libcurl.lib;zlib.lib;ws2_32.lib;Crypt32.lib;Wldap32.lib;Normaliz.lib;%(AdditionalDependencies)</AdditionalDependencies>
+                <AdditionalDependencies>vertel_core.lib;vertel_runtime.lib;vertel_adapters.lib;vertel_platform.lib;libcurl.lib;zlib.lib;ws2_32.lib;Crypt32.lib;Wldap32.lib;Normaliz.lib;Iphlpapi.lib;Secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
               </Link>
             </ItemDefinitionGroup>
           </Project>

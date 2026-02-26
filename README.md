@@ -317,7 +317,7 @@ Alternatively, configure manually via **Project → Properties**:
 | **C/C++ → Language Standard** | `ISO C++20 (/std:c++20)` |
 | **C/C++ → Preprocessor Definitions** | Add `VERTEL_HAS_LIBCURL=1` |
 | **Linker → Additional Library Directories** | `C:\libs\vertel-sdk\lib\x64` |
-| **Linker → Additional Dependencies** | `vertel_core.lib;vertel_runtime.lib;vertel_adapters.lib;vertel_platform.lib;libcurl.lib;zlib.lib;ws2_32.lib;Crypt32.lib;Wldap32.lib;Normaliz.lib` |
+| **Linker → Additional Dependencies** | `vertel_core.lib;vertel_runtime.lib;vertel_adapters.lib;vertel_platform.lib;libcurl.lib;zlib.lib;ws2_32.lib;Crypt32.lib;Wldap32.lib;Normaliz.lib;Iphlpapi.lib;Secur32.lib` |
 
 ### Option C — vcpkg + Visual Studio
 
