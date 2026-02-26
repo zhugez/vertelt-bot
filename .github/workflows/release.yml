@@ -66,13 +66,32 @@ jobs:
           generate_release_notes: true
 
   build-windows:
-    name: Build Windows (MSVC)
+    name: Build Windows (MSVC ${{ matrix.arch }})
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            triplet: x64-windows-static
+            msvc_arch: x64
+          - arch: x86
+            triplet: x86-windows-static
+            msvc_arch: x86
+    env:
+      VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install curl via vcpkg
+        run: vcpkg install curl:${{ matrix.triplet }}
+
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+        run: >
+          cmake -S . -B build -A ${{ matrix.msvc_arch }}
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
 
       - name: Build
         run: cmake --build build --config Release --parallel
@@ -80,15 +99,49 @@ jobs:
       - name: Test
         run: ctest --test-dir build --build-config Release --output-on-failure
 
-      - name: Install to staging prefix
-        run: cmake --install build --config Release --prefix staging
-
-      - name: Package
+      - name: Assemble Visual Studio SDK package
         shell: pwsh
         run: |
-          Copy-Item README.md, LICENSE, CHANGELOG.md -Destination staging/
-          $artifact = "vertel-${{ github.ref_name }}-windows-x86_64-msvc.zip"
-          Compress-Archive -Path staging/* -DestinationPath $artifact
+          $sdk = "sdk"
+
+          # Libraries
+          New-Item -ItemType Directory -Force -Path "$sdk/lib/${{ matrix.arch }}"
+          Copy-Item build/Release/*.lib -Destination "$sdk/lib/${{ matrix.arch }}/"
+
+          # Headers (public API)
+          Copy-Item -Recurse include/vertel "$sdk/include/vertel"
+          # Generated version header
+          Copy-Item build/include/vertel/vertel_version.h "$sdk/include/vertel/"
+          # Third-party headers needed at compile time
+          Copy-Item -Recurse third_party/nlohmann "$sdk/include/nlohmann"
+
+          # Docs
+          Copy-Item README.md, LICENSE, CHANGELOG.md -Destination "$sdk/"
+
+          # Visual Studio property sheet for easy integration
+          @"
+          <?xml version="1.0" encoding="utf-8"?>
+          <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+            <PropertyGroup Label="UserMacros">
+              <VERTEL_ROOT>`$(MSBuildThisFileDirectory)</VERTEL_ROOT>
+            </PropertyGroup>
+            <ItemDefinitionGroup>
+              <ClCompile>
+                <AdditionalIncludeDirectories>`$(VERTEL_ROOT)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+                <PreprocessorDefinitions>VERTEL_HAS_LIBCURL=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+                <LanguageStandard>stdcpp20</LanguageStandard>
+              </ClCompile>
+              <Link>
+                <AdditionalLibraryDirectories>`$(VERTEL_ROOT)lib/${{ matrix.arch }};%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+                <AdditionalDependencies>vertel_core.lib;vertel_runtime.lib;vertel_adapters.lib;vertel_platform.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+              </Link>
+            </ItemDefinitionGroup>
+          </Project>
+          "@ | Out-File -Encoding utf8 "$sdk/vertel.props"
+
+          # Package
+          $artifact = "vertel-${{ github.ref_name }}-windows-${{ matrix.arch }}-msvc.zip"
+          Compress-Archive -Path "$sdk/*" -DestinationPath $artifact
           echo "ARTIFACT=$artifact" >> $env:GITHUB_ENV
 
       - name: Upload workflow artifact

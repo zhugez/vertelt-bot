@@ -72,7 +72,7 @@ jobs:
 
       - name: Run format check
         run: |
-          files=$(git ls-files '*.h' '*.hpp' '*.c' '*.cc' '*.cpp')
+          files=$(git ls-files '*.h' '*.hpp' '*.c' '*.cc' '*.cpp' | grep -v third_party)
           if [ -n "$files" ]; then
             clang-format --dry-run --Werror $files
           else
