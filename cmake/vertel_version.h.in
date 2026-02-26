@@ -1,0 +1,17 @@
+#ifndef VERTEL_VERSION_H
+#define VERTEL_VERSION_H
+
+/// \file vertel_version.h
+/// \brief Auto-generated — do not edit. Edit cmake/vertel_version.h.in instead.
+
+#define VERTEL_VERSION_MAJOR @vertel_VERSION_MAJOR@
+#define VERTEL_VERSION_MINOR @vertel_VERSION_MINOR@
+#define VERTEL_VERSION_PATCH @vertel_VERSION_PATCH@
+
+/// Packed version: (major * 10000) + (minor * 100) + patch
+#define VERTEL_VERSION \
+    (VERTEL_VERSION_MAJOR * 10000 + VERTEL_VERSION_MINOR * 100 + VERTEL_VERSION_PATCH)
+
+#define VERTEL_VERSION_STRING "@vertel_VERSION@"
+
+#endif // VERTEL_VERSION_H

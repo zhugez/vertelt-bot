@@ -4,8 +4,12 @@ include(CMakeFindDependencyMacro)
 
 find_dependency(Threads)
 
-if(@VERTEL_WITH_CURL@)
+if("@VERTEL_WITH_CURL@")
   find_dependency(CURL)
 endif()
 
-include("${CMAKE_CURRENT_LIST_DIR}/vertelTargets.cmake")
+if(NOT TARGET vertel::core)
+  include("${CMAKE_CURRENT_LIST_DIR}/vertelTargets.cmake")
+endif()
+
+check_required_components(vertel)
