@@ -283,6 +283,62 @@ target_link_libraries(my_bot PRIVATE vertel)
 
 ---
 
+## 🪟 Using VerTel with Visual Studio
+
+### Option A — Open with CMake (recommended)
+
+Visual Studio 2022 natively supports CMake projects:
+
+1. **File → Open → Folder** → select the `vertel-bot` root directory
+2. VS will auto-detect `CMakeLists.txt` and configure the project
+3. Select **Release** / **x64** from the configuration dropdown
+4. **Build → Build All** (`Ctrl+Shift+B`)
+
+> **Tip:** If you need libcurl, install it via vcpkg first:
+> ```powershell
+> vcpkg install curl:x64-windows-static
+> ```
+> Then set the CMake toolchain in VS: **Project → CMake Settings** → add `-DCMAKE_TOOLCHAIN_FILE=<vcpkg-root>/scripts/buildsystems/vcpkg.cmake`.
+
+### Option B — Pre-built SDK from Releases
+
+1. Download `vertel-v0.9.0-windows-x64-msvc.zip` from [Releases](https://github.com/zhugez/vertelt-bot/releases)
+2. Extract to a folder, e.g. `C:\libs\vertel-sdk`
+3. In your Visual Studio project:
+   - **View → Property Manager** → right-click your config → **Add Existing Property Sheet**
+   - Select `vertel.props` from the extracted SDK folder
+4. That's it — headers and libs are configured automatically
+
+Alternatively, configure manually via **Project → Properties**:
+
+| Setting | Value |
+|:--------|:------|
+| **C/C++ → Additional Include Directories** | `C:\libs\vertel-sdk\include` |
+| **C/C++ → Language Standard** | `ISO C++20 (/std:c++20)` |
+| **C/C++ → Preprocessor Definitions** | Add `VERTEL_HAS_LIBCURL=1` |
+| **Linker → Additional Library Directories** | `C:\libs\vertel-sdk\lib\x64` |
+| **Linker → Additional Dependencies** | `vertel_core.lib;vertel_runtime.lib;vertel_adapters.lib;vertel_platform.lib;ws2_32.lib` |
+
+### Option C — vcpkg + Visual Studio
+
+```powershell
+# Install VerTel and its dependencies
+vcpkg install curl:x64-windows-static
+
+# Clone and build VerTel
+git clone https://github.com/zhugez/vertelt-bot.git
+cd vertelt-bot
+cmake -S . -B build -A x64 ^
+  -DCMAKE_TOOLCHAIN_FILE="%VCPKG_INSTALLATION_ROOT%/scripts/buildsystems/vcpkg.cmake" ^
+  -DVCPKG_TARGET_TRIPLET=x64-windows-static
+cmake --build build --config Release
+cmake --install build --prefix C:\libs\vertel-sdk
+```
+
+Then add the property sheet or configure manually as shown in Option B.
+
+---
+
 ## ▶️ Running the Reference Bot
 
 ### Telegram Mode
