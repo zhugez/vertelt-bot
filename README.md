@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/banner.png?v=2" alt="VerTel — C++20 Telegram Bot Framework" width="480">
+  <img src="docs/banner.png?v=3" alt="VerTel — C++20 Telegram Bot Framework" width="480">
 </p>
 
 <h1 align="center">VerTel</h1>
