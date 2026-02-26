@@ -337,6 +337,28 @@ cmake --install build --prefix C:\libs\vertel-sdk
 
 Then add the property sheet or configure manually as shown in Option B.
 
+### Option D — Single-Header Library (`vertel.hpp`)
+
+For the absolute easiest integration, you can use the amalgamated single-header version. This requires no build system and no external dependencies (it automatically uses WinHTTP on Windows).
+
+1. Download `vertel.hpp` from the [Releases](https://github.com/zhugez/vertelt-bot/releases) page.
+2. Drop `vertel.hpp` directly into your project directory.
+3. In exactly **ONE** source file (e.g., `main.cpp`), define the implementation macro before including it:
+
+```cpp
+#define VERTEL_IMPLEMENTATION
+#include "vertel.hpp"
+
+int main() { ... }
+```
+
+4. Everywhere else, simply `#include "vertel.hpp"` without the macro.
+5. **Compilation (Windows/MSVC example):**
+   ```cmd
+   cl /EHsc /std:c++20 main.cpp winhttp.lib psapi.lib ws2_32.lib advapi32.lib
+   ```
+   *Note: Linking `winhttp.lib`, `psapi.lib`, `ws2_32.lib`, and `advapi32.lib` is required on Windows.*
+
 ---
 
 ## ▶️ Running the Reference Bot

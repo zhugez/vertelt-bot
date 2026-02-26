@@ -36,3 +36,5 @@ Thumbs.db
 # Agent/tool local data
 .agent/
 .claude/
+vertel.hpp
+vertel_amalgamated.hpp
