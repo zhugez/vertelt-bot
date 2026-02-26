@@ -48,61 +48,66 @@ TelegramClient::TelegramClient(std::string bot_token, int long_poll_timeout_seco
 TelegramClient::HttpResponse TelegramClient::PostForm(const std::string &endpoint,
                                                       const std::string &form_body) const {
 #if !VERTEL_HAS_LIBCURL
-  HINTERNET hSession = WinHttpOpen(L"VerTel-Bot/1.0",
-      WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
-      WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
-  if (!hSession) throw std::runtime_error("WinHttpOpen failed");
+  HINTERNET hSession = WinHttpOpen(L"VerTel-Bot/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+                                   WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+  if (!hSession)
+    throw std::runtime_error("WinHttpOpen failed");
 
-  HINTERNET hConnect = WinHttpConnect(hSession,
-      L"api.telegram.org", INTERNET_DEFAULT_HTTPS_PORT, 0);
-  if (!hConnect) { WinHttpCloseHandle(hSession); throw std::runtime_error("WinHttpConnect failed"); }
+  HINTERNET hConnect =
+      WinHttpConnect(hSession, L"api.telegram.org", INTERNET_DEFAULT_HTTPS_PORT, 0);
+  if (!hConnect) {
+    WinHttpCloseHandle(hSession);
+    throw std::runtime_error("WinHttpConnect failed");
+  }
 
   std::wstring path = L"/bot";
   std::wstring wtoken(bot_token_.begin(), bot_token_.end());
   std::wstring wendpoint(endpoint.begin(), endpoint.end());
   path += wtoken + L"/" + wendpoint;
 
-  HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"POST", path.c_str(),
-      nullptr, WINHTTP_NO_REFERER,
-      WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
+  HINTERNET hRequest =
+      WinHttpOpenRequest(hConnect, L"POST", path.c_str(), nullptr, WINHTTP_NO_REFERER,
+                         WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
   if (!hRequest) {
-      WinHttpCloseHandle(hConnect);
-      WinHttpCloseHandle(hSession);
-      throw std::runtime_error("WinHttpOpenRequest failed");
+    WinHttpCloseHandle(hConnect);
+    WinHttpCloseHandle(hSession);
+    throw std::runtime_error("WinHttpOpenRequest failed");
   }
 
   // Set timeout
-  WinHttpSetTimeouts(hRequest, 10000, 10000, request_timeout_seconds_ * 1000, request_timeout_seconds_ * 1000);
+  WinHttpSetTimeouts(hRequest, 10000, 10000, request_timeout_seconds_ * 1000,
+                     request_timeout_seconds_ * 1000);
 
   std::wstring headers = L"Content-Type: application/x-www-form-urlencoded\r\n";
-  if (!WinHttpSendRequest(hRequest, headers.c_str(), -1L,
-          (LPVOID)form_body.c_str(), (DWORD)form_body.size(), (DWORD)form_body.size(), 0)) {
-      WinHttpCloseHandle(hRequest);
-      WinHttpCloseHandle(hConnect);
-      WinHttpCloseHandle(hSession);
-      throw std::runtime_error("WinHttpSendRequest failed");
+  if (!WinHttpSendRequest(hRequest, headers.c_str(), -1L, (LPVOID)form_body.c_str(),
+                          (DWORD)form_body.size(), (DWORD)form_body.size(), 0)) {
+    WinHttpCloseHandle(hRequest);
+    WinHttpCloseHandle(hConnect);
+    WinHttpCloseHandle(hSession);
+    throw std::runtime_error("WinHttpSendRequest failed");
   }
 
   if (!WinHttpReceiveResponse(hRequest, nullptr)) {
-      WinHttpCloseHandle(hRequest);
-      WinHttpCloseHandle(hConnect);
-      WinHttpCloseHandle(hSession);
-      throw std::runtime_error("WinHttpReceiveResponse failed");
+    WinHttpCloseHandle(hRequest);
+    WinHttpCloseHandle(hConnect);
+    WinHttpCloseHandle(hSession);
+    throw std::runtime_error("WinHttpReceiveResponse failed");
   }
 
   DWORD statusCode = 0;
   DWORD statusCodeSize = sizeof(statusCode);
   WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
-                      WINHTTP_HEADER_NAME_BY_INDEX, &statusCode, &statusCodeSize, WINHTTP_NO_HEADER_INDEX);
+                      WINHTTP_HEADER_NAME_BY_INDEX, &statusCode, &statusCodeSize,
+                      WINHTTP_NO_HEADER_INDEX);
 
   std::string response_body;
   DWORD bytesAvailable = 0;
   while (WinHttpQueryDataAvailable(hRequest, &bytesAvailable) && bytesAvailable > 0) {
-      std::vector<char> buffer(bytesAvailable + 1, 0);
-      DWORD bytesRead = 0;
-      if (WinHttpReadData(hRequest, buffer.data(), bytesAvailable, &bytesRead)) {
-          response_body.append(buffer.data(), bytesRead);
-      }
+    std::vector<char> buffer(bytesAvailable + 1, 0);
+    DWORD bytesRead = 0;
+    if (WinHttpReadData(hRequest, buffer.data(), bytesAvailable, &bytesRead)) {
+      response_body.append(buffer.data(), bytesRead);
+    }
   }
 
   WinHttpCloseHandle(hRequest);
@@ -110,12 +115,13 @@ TelegramClient::HttpResponse TelegramClient::PostForm(const std::string &endpoin
   WinHttpCloseHandle(hSession);
 
   if (statusCode >= 400) {
-      std::ostringstream oss;
-      oss << "telegram http status " << statusCode << " body: " << response_body;
-      throw std::runtime_error(oss.str());
+    std::ostringstream oss;
+    oss << "telegram http status " << statusCode << " body: " << response_body;
+    throw std::runtime_error(oss.str());
   }
 
-  return HttpResponse{.status_code = static_cast<long>(statusCode), .body = std::move(response_body)};
+  return HttpResponse{.status_code = static_cast<long>(statusCode),
+                      .body = std::move(response_body)};
 #else
   CURL *curl = curl_easy_init();
   if (curl == nullptr) {
@@ -216,11 +222,11 @@ std::string TelegramClient::UrlEncode(const std::string &value) {
   escaped.fill('0');
   escaped << std::hex;
   for (unsigned char c : value) {
-      if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
-          escaped << c;
-      } else {
-          escaped << std::uppercase << '%' << std::setw(2) << int((unsigned char)c);
-      }
+    if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+      escaped << c;
+    } else {
+      escaped << std::uppercase << '%' << std::setw(2) << int((unsigned char)c);
+    }
   }
   return escaped.str();
 #else
