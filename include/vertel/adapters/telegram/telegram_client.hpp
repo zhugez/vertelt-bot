@@ -6,6 +6,12 @@
 
 #include "vertel/core/telegram_gateway.hpp"
 
+// MSVC: windows.h (transitively via curl/curl.h) #defines SendMessage as
+// SendMessageA/W. Undo it so our method name compiles correctly.
+#ifdef SendMessage
+#undef SendMessage
+#endif
+
 namespace vertel::adapters::telegram {
 
 class TelegramClient final : public vertel::core::TelegramGateway {

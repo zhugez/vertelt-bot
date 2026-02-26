@@ -12,6 +12,11 @@
 
 #include "nlohmann/json.hpp"
 
+// MSVC: curl/curl.h pulls in windows.h which re-defines SendMessage.
+#ifdef SendMessage
+#undef SendMessage
+#endif
+
 namespace vertel::adapters::telegram {
 namespace {
 
