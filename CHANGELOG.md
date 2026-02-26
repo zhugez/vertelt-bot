@@ -10,6 +10,7 @@ The format is based on Keep a Changelog and this project follows Semantic Versio
 
 ### Added
 
+- Single-header library version (`vertel.hpp`) without external dependencies (uses WinHTTP on Windows)
 - Core Telegram bot framework with C++20 (bot service, command routing)
 - Runtime components: health server, structured logging, retry policy, graceful shutdown
 - Telegram HTTP adapter with libcurl (optional — builds without it)
