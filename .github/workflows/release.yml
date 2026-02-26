@@ -35,18 +35,22 @@ jobs:
           fi
 
       - name: Configure
-        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=20
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: cmake --build build --parallel
 
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Install to staging prefix
+        run: cmake --install build --prefix staging
+
       - name: Package
         run: |
-          artifact="vertel-bot-${{ github.ref_name }}-linux-x86_64-${{ matrix.compiler }}.tar.gz"
-          mkdir -p package
-          cp build/vertel_bot package/
-          cp README.md LICENSE CHANGELOG.md package/
-          tar -czf "$artifact" -C package .
+          artifact="vertel-${{ github.ref_name }}-linux-x86_64-${{ matrix.compiler }}.tar.gz"
+          cp README.md LICENSE CHANGELOG.md staging/
+          tar -czf "$artifact" -C staging .
           echo "ARTIFACT=$artifact" >> "$GITHUB_ENV"
 
       - name: Upload workflow artifact
