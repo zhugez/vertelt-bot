@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 jobs:
-  build-artifacts:
-    name: Build artifact (${{ matrix.compiler }})
+  build-linux:
+    name: Build Linux (${{ matrix.compiler }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -52,6 +52,44 @@ jobs:
           cp README.md LICENSE CHANGELOG.md staging/
           tar -czf "$artifact" -C staging .
           echo "ARTIFACT=$artifact" >> "$GITHUB_ENV"
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: ${{ env.ARTIFACT }}
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ARTIFACT }}
+          generate_release_notes: true
+
+  build-windows:
+    name: Build Windows (MSVC)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Test
+        run: ctest --test-dir build --build-config Release --output-on-failure
+
+      - name: Install to staging prefix
+        run: cmake --install build --config Release --prefix staging
+
+      - name: Package
+        shell: pwsh
+        run: |
+          Copy-Item README.md, LICENSE, CHANGELOG.md -Destination staging/
+          $artifact = "vertel-${{ github.ref_name }}-windows-x86_64-msvc.zip"
+          Compress-Archive -Path staging/* -DestinationPath $artifact
+          echo "ARTIFACT=$artifact" >> $env:GITHUB_ENV
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4

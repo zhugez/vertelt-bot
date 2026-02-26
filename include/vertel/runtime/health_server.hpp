@@ -4,6 +4,11 @@
 #include <thread>
 #include <mutex>
 
+#ifdef _WIN32
+#  include <winsock2.h>
+#  include <ws2tcpip.h>
+#endif
+
 #include "vertel/runtime/metrics.hpp"
 
 namespace vertel::runtime {
@@ -28,7 +33,11 @@ class HealthServer {
   MetricsRegistry& metrics_;
   int port_;
   bool running_{false};
+#ifdef _WIN32
+  SOCKET listen_fd_{INVALID_SOCKET};
+#else
   int listen_fd_{-1};
+#endif
   std::thread thread_;
   std::mutex mutex_;
 };

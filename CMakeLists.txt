@@ -57,6 +57,9 @@ add_library(vertel_runtime
 add_library(vertel::runtime ALIAS vertel_runtime)
 target_compile_features(vertel_runtime PUBLIC cxx_std_20)
 target_link_libraries(vertel_runtime PUBLIC Threads::Threads)
+if(WIN32)
+  target_link_libraries(vertel_runtime PUBLIC ws2_32)
+endif()
 target_include_directories(vertel_runtime PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
